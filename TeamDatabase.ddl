@@ -54,13 +54,11 @@ create table Games
 	Score		CHAR(10), 
 	Winner		VARCHAR(150),
 
-	FOREIGN KEY(HomeTeam_ID) REFERENCES Team(Team_ID) ON CASCADE DELETE,
+	FOREIGN KEY(HomeTeam_ID) REFERENCES Team(Team_ID) ON DELETE CASCADE,
 
-	FOREIGN KEY(AwayTeam_ID) REFERENCES Team(Team_ID) ON CASCADE DELETE
+	FOREIGN KEY(AwayTeam_ID) REFERENCES Team(Team_ID) ON DELETE CASCADE
 
 
-
-	
 );
 
 create table Stats
@@ -82,9 +80,6 @@ create table Stats
 	CHECK((PlayingTimeMin < 40 AND PlayingTimeSec < 60) OR 
         (PlayingTimeMin = 40 AND PlayingTimeSec = 0 ))
 	
-
-
-
 );
 
 
@@ -95,16 +90,18 @@ create table Users
 	Password	VARCHAR(150) NOT NULL
 );
 
+
+
 create table AccessLog
 (
-	LoggedId	INTEGER UNSIGNED NOT NULL, 
-	LoggedUserName	VARCHAR(150),
+	LoggedID	INTEGER UNSIGNED NOT NULL, 
+	LoggedUser	VARCHAR(150) NOT NULL, 
 	TimeStamp	VARCHAR(150),
 
-	FOREIGN KEY(LoggedID) REFERENCES Users(User_ID),
+	FOREIGN KEY(LoggedID) REFERENCES Users(User_ID) ON DELETE CASCADE
 	
-	FOREIGN KEY(LoggedUserName) REFERENCES Users(UserName)
-
+	
+	
 );
 
 
