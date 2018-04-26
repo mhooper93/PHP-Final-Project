@@ -1,3 +1,8 @@
+<?php
+
+	session_start();
+	//session_unset();
+?>
 <!DOCTYPE html>
 
 <html>
@@ -14,11 +19,11 @@
 
 <?php
 
-require_once('AdminLogin.php');
-
-
-if ((!isset($_POST['UserName'])) || (!isset($_POST['Password']))) 
+require('DBconnection.php');
+	
+if ((!isset($_POST['UserName'])) || (!isset($_POST['Password'])))
 {
+	
 
 ?>
 
@@ -34,23 +39,34 @@ if ((!isset($_POST['UserName'])) || (!isset($_POST['Password'])))
 }
 else 
 {
-
-	if(mysqli_connect_error()== 0)
+	
+	if(isset($_SESSION["Role_ID"]))
 	{
-		$UserName =  trim( preg_replace("/\t|\R/",' ',$_POST['UserName']) );
+		
+		
+		
+	}
+   
+		if(mysqli_connect_error()== 0)
+	{
+		$UserName =  trim( preg_replace("/\t|\R/",' ',	$_POST['UserName']) );
 
-		$Password =  trim( preg_replace("/\t|\R/",' ',$_POST['Password']) );
+		$Password =  trim( preg_replace("/\t|\R/",' ',	$_POST['Password']) );
 		
 		$Password = htmlspecialchars($Password);
 		$UserName = htmlspecialchars($UserName);
 
 		$Password = password_hash($Password, PASSWORD_DEFAULT);
 		$query = "SELECT count(*)
-			  FROM Users
-			  WHERE Users.UserName = '$UserName'";
-
-		$stmt = $db->prepare($query);
+				  FROM Users
+				  WHERE Users.UserName = ?";
 		
+		$stmt = $db->prepare($query);
+		if($stmt === FALSE)
+		{
+			die('prepare() failed: ' . htmlspecialchars($db->error));
+		}
+		$stmt->bind_param('s', $UserName);
 		$stmt->execute();
 		$stmt->store_result();
 
@@ -58,10 +74,10 @@ else
 
 		$stmt->data_seek(0);
 		$stmt->fetch();
-		
+
 		if($count > 0)
 		{
-		   echo ("<h1> That Username is already in use, Please select a different one. </h1>");
+		   echo ("<h1> That Username is already in use, Please 				select a different one. </h1>");
 		  
 
 		}
@@ -71,24 +87,23 @@ else
 			$query = "INSERT INTO Users SET 
 				  UserName = ?,
 				  Password = ?,
-				  Role = 'Observer'";
-			
+				  Role = 'Observers'";
 
+			
+			
+			
 			$stmt = $db->prepare($query);
 			$stmt->bind_param('ss', $UserName, $Password);
 			$stmt->execute();
-
-
-			$stmt->close();
-			$db->close();
-
-
-
-
-
-
-
 			
+			$db->close();
+			$stmt->close();
+
+			$_SESSION["Role_ID"] = "Observers";
+			$_SESSION["UserName"] = $UserName;
+
+			header('Location: HomePage.php');
+			exit();
 		}
 		
 	}
@@ -103,10 +118,8 @@ else
 
 
 
-
-
-
 ?>
+
 
 
 </body>

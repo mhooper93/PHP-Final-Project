@@ -3,11 +3,10 @@ create database if not exists TeamDatabase;
 
 drop user if exists 'Observers'@'localhost';
 create user if not exists 'Observers'@'localhost' IDENTIFIED BY 'OBSpassword';
-GRANT SELECT ON TeamDatabase.* TO 'Observers'@'localhost';
 
 drop user if exists 'Coaches'@'localhost';
 create user if not exists 'Coaches'@'localhost' IDENTIFIED BY 'COApassword';
-GRANT SELECT, INSERT, UPDATE ON TeamDatabase.* TO 'Coaches'@'localhost';
+
 
 drop user if exists 'DBAdmin'@'localhost';
 create user if not exists 'DBAdmin'@'localhost' IDENTIFIED BY 'DBApassword';
@@ -88,9 +87,9 @@ create table Users
 	User_ID		INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	UserName	VARCHAR(150) NOT NULL,
 	Password	VARCHAR(150) NOT NULL,
-	Role		CHAR(10) NOT NULL,
+	Role		ENUM('Observers', 'Coaches', 'DBAdmin') NOT NULL,
 
-	UNIQUE(UserName)
+	UNIQUE(UserName) 
 );
 
 
@@ -107,6 +106,18 @@ create table AccessLog
 	
 );
 
+
+
+GRANT SELECT, INSERT, UPDATE ON TeamDatabase.Team TO 'Coaches'@'localhost';
+GRANT SELECT, INSERT, UPDATE ON TeamDatabase.Stats TO 'Coaches'@'localhost';
+GRANT SELECT, INSERT, UPDATE ON TeamDatabase.Players TO 'Coaches'@'localhost';
+GRANT SELECT, INSERT, UPDATE ON TeamDatabase.Games TO 'Coaches'@'localhost';
+
+GRANT SELECT ON TeamDatabase.Team TO 'Observers'@'localhost';
+GRANT SELECT ON TeamDatabase.Stats TO 'Observers'@'localhost';
+GRANT SELECT ON TeamDatabase.Players TO 'Observers'@'localhost';
+GRANT SELECT ON TeamDatabase.Games TO 'Observers'@'localhost';
+ 
 
 
 
