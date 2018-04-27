@@ -88,13 +88,14 @@ create table Users
 	UserName	VARCHAR(150) NOT NULL,
 	Password	VARCHAR(150) NOT NULL,
 	Role		ENUM('Observers', 'Coaches', 'DBAdmin') NOT NULL,
+	Email		VARCHAR(200) NOT NULL, 
 
 	UNIQUE(UserName) 
 );
 
 
 
-create table AccessLog
+create table AccessLog	
 (
 	LoggedID	INTEGER UNSIGNED NOT NULL, 
 	LoggedUser	VARCHAR(150) NOT NULL, 

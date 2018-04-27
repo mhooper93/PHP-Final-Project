@@ -2,13 +2,21 @@
 
 session_start();
 
+if(isset($_SESSION["Role_ID"]))
+{
+		header('Location: HomePage.php');
+		exit();
+	
+}
+	
 require('DBconnection.php');
 
-if ((!isset($_POST['UserName'])) || (!isset($_POST['Password'])) || (!isset($_SESSION['Role_ID']))) 
+if ((!isset($_POST['UserName'])) || (!isset($_POST['Password'])))
 {
 
 
 ?>
+
 <!DOCTYPE html>
 
 <html>
@@ -35,39 +43,35 @@ if ((!isset($_POST['UserName'])) || (!isset($_POST['Password'])) || (!isset($_SE
 }
 else
 {
-	if(isset($_SESSION["Role_ID"]))
-	{
-		header('Location: HomePage.php');
-		exit();
-	
-	}
-	else
-	{
-		
+			
 		$UserName =  trim( preg_replace("/\t|\R/",' ',	$_POST['UserName']) );
 		$Password =  trim( preg_replace("/\t|\R/",' ',	$_POST['Password']) );
 	
 		$Password = htmlspecialchars($Password);
 		$UserName = htmlspecialchars($UserName);
 		
-		$Password = password_hash($Password, PASSWORD_DEFAULT);
-		
-		$query = "SELECT UserName, Role, User_ID, count(*)
+		$query = "SELECT count(*), UserName, Role, User_ID, Email, Password
 				  FROM Users
-				  WHERE Users.UserName = ? && Users.Password = ?";
+				  WHERE Users.UserName = ?";
 				  
 		
 		$stmt = $db->prepare($query);
-		$stmt->bind_param('ss', $UserName, $Password);
-		
+		if($stmt === FALSE)
+		{
+			die('prepare() failed: ' . htmlspecialchars($db->error));
+		}
+		$stmt->bind_param('s', $UserName);
+
 		$stmt->execute();
-		$stmt->bind_result($SessionUser, $SessionRole, $SessionUserId);
+		$stmt->bind_result($count, $SessionUser, $SessionRole, $SessionUserId, $Email, $PHash);
+	
 		
 		$stmt->data_seek(0);
 		$stmt->fetch();
-		
-		if($count == 1)
+
+		if($count == 1 && password_verify($Password, $PHash))
 		{
+		
 			$_SESSION['UserName'] = $SessionUser;
 			$_SESSION['Role_ID'] = $SessionRole;
 			$_SESSION['User_ID'] = $SessionUserId;
@@ -86,7 +90,7 @@ else
 		}
 	
 	
-	}
+	
 }
 ?>
 
